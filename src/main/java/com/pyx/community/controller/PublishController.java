@@ -1,13 +1,16 @@
 package com.pyx.community.controller;
 
 
+import com.pyx.community.dto.QuestionDTO;
 import com.pyx.community.mapper.QuestionMapper;
 import com.pyx.community.model.Question;
 import com.pyx.community.model.User;
+import com.pyx.community.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -17,17 +20,43 @@ import javax.servlet.http.HttpServletRequest;
 public class PublishController {
 
     @Autowired
-    private QuestionMapper questionMapper;
+    private QuestionService questionService;
 
+    /**
+     * 点击编辑后跳转到问题更新页面
+     */
+    @GetMapping("/publish/{id}")
+    public String edit(@PathVariable(name="id")Integer id,
+                       Model model){
+        QuestionDTO question = questionService.getById(id);
+
+        /**
+         * 放进model中，将问题信息回显到页面
+         * id用于判断这个问题是更新还是发布，因为id唯一
+         */
+        model.addAttribute("title", question.getTitle());
+        model.addAttribute("description", question.getDescription());
+        model.addAttribute("tag", question.getTag());
+        model.addAttribute("id",question.getId());
+        return "publish";
+    }
+
+    /**
+     * 问题发布页面
+     */
     @GetMapping("/publish")
     public String publish() {
         return "publish";
     }
 
+    /**
+     *  Post请求，表单提交，发布问题时跳转这个
+     */
     @PostMapping("/publish")
-    public String doPublish(@RequestParam("title") String title,
-                            @RequestParam("description") String description,
-                            @RequestParam("tag") String tag,
+    public String doPublish(@RequestParam(value = "title",required = false) String title,
+                            @RequestParam(value = "description",required = false) String description,
+                            @RequestParam(value = "tag",required = false) String tag,
+                            @RequestParam(value = "id",required = false) Integer id,
                             HttpServletRequest request,
                             Model model) {
         model.addAttribute("title", title);
@@ -57,9 +86,8 @@ public class PublishController {
         }
 
         question.setCreator(user.getId());
-        question.setGmtCreate(System.currentTimeMillis());
-        question.setGmtModified(question.getGmtCreate());
-        questionMapper.create(question);
+        question.setId(id);
+        questionService.createOrUpdate(question);
         return "redirect:/";
     }
 }

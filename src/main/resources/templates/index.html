@@ -19,8 +19,11 @@
             <div class="media" th:each="question : ${paginationDTO.questions}">
                 <div class="media-left">
                     <a href="#">
+                        <!--th:block th:if 判断当前用户不为空，避免页面直接报错-->
+                        <th:block th:if="${question.user!=null}">
                         <img class="media-object img-rounded"
                              th:src="${question.user.avatarUrl}">
+                        </th:block>
                     </a>
                 </div>
                 <div class="media-body">
@@ -38,7 +41,7 @@
             <nav aria-label="Page navigation">
                 <ul class="pagination">
                     <li th:if="${paginationDTO.showFirstPage}">
-                        <a href="/?page=1" aria-label="Previous">
+                        <a th:href="@{/page=1}" aria-label="Previous">
                             <span aria-hidden="true">&lt;&lt;</span>
                         </a>
                     </li>
