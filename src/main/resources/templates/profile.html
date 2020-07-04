@@ -1,20 +1,23 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>U社</title>
+    <title th:text="${sectionName}"></title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <link rel="stylesheet" href="css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="css/bootstrap-theme.min.css"/>
-    <link rel="stylesheet" href="css/community.css">
-    <script src="js/jquery-3.5.1.min.js"></script>
-    <script src="js/bootstrap.min.js" type="application/javascript"></script>
+    <!--这里路径加/ 。因为这个页面是一个二级目录，localhost:8887/profile/questions。
+        并不是之前的localhost:8887/index 这样的一级目录，因此要把样式资源放到根目录下
+    -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="/css/community.css">
+    <script src="/js/jquery-3.5.1.min.js"></script>
+    <script src="/js/bootstrap.min.js" type="application/javascript"></script>
 </head>
 <body>
 <div th:insert="navigation :: nav"></div>
-<div class="container-fluid main">
+<div class="container-fluid main profile">
     <div class="row">
         <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-            <h2><span class="glyphicon glyphicon-list" aria-hidden="true">发现</span></h2>
+            <h2><span th:text="${sectionName}"></span></h2>
             <hr>
             <div class="media" th:each="question : ${paginationDTO.questions}">
                 <div class="media-left">
@@ -24,10 +27,7 @@
                     </a>
                 </div>
                 <div class="media-body">
-                    <h4 class="media-heading" >
-                        <a th:href="@{'/question/'+${question.id}}" th:text="${question.title}"></a>
-                    </h4>
-                    <span th:text="${question.description}"></span><br>
+                    <h4 class="media-heading" th:text="${question.title}"></h4>
                     <span class="text-desc">
                         <span th:text="${question.commentCount}"></span>个回复·
                         <span th:text="${question.viewCount}"></span>次浏览·
@@ -38,28 +38,28 @@
             <nav aria-label="Page navigation">
                 <ul class="pagination">
                     <li th:if="${paginationDTO.showFirstPage}">
-                        <a href="/?page=1" aria-label="Previous">
+                        <a th:href="@{'/profile/'+${section}(page=${1})}" aria-label="Previous">
                             <span aria-hidden="true">&lt;&lt;</span>
                         </a>
                     </li>
                     <!--如果展示第一页的showPrevious为true才出现按钮，说明当前页不是第一页-->
                     <li th:if="${paginationDTO.showPrevious}">
-                        <a th:href="@{/(page=${paginationDTO.currentPage}-1)}" aria-label="Previous">
+                        <a th:href="@{'/profile/'+${section}(page=${paginationDTO.currentPage -1})}" aria-label="Previous">
                             <span aria-hidden="true">&lt;</span>
                         </a>
                     </li>
                     <!--加深当前页面的标签-->
                     <li th:each="page : ${paginationDTO.pages}" th:class="${paginationDTO.currentPage==page}?'active':'' ">
-                        <a th:href="@{/(page=${page})}" th:text="${page}">
+                        <a th:href="@{'/profile/'+${section}(page=${page})}" th:text="${page}">
                         </a>
                     </li>
                     <li th:if="${paginationDTO.showNext}">
-                        <a th:href="@{/(page=${paginationDTO.currentPage}+1)}" aria-label="Previous">
+                        <a th:href="@{'/profile/'+${section}(page=${paginationDTO.currentPage +1})}" aria-label="Previous">
                             <span aria-hidden="true">&gt;</span>
                         </a>
                     </li>
                     <li th:if="${paginationDTO.showEndPage}">
-                        <a th:href="@{/(page=${paginationDTO.totalPage})}"  aria-label="Previous">
+                        <a th:href="@{'/profile/'+${section}(page=${paginationDTO.totalPage})}"  aria-label="Previous">
                             <span aria-hidden="true">&gt;&gt;</span>
                         </a>
                     </li>
@@ -67,7 +67,13 @@
             </nav>
         </div>
         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-            <h3>热门话题</h3>
+            <div class="list-group section">
+                <a href="/profile/questions" th:class="${section=='questions'} ? 'active list-group-item' : 'list-group-item' ">我的问题</a>
+                <a href="/profile/replies" th:class="${section=='replies'} ? 'active list-group-item' : 'list-group-item' ">
+                    最新回复
+                    <span class="badge">14</span>
+                </a>
+            </div>
         </div>
     </div>
 </div>

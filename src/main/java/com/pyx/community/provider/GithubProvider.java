@@ -4,6 +4,16 @@ import com.alibaba.fastjson.JSON;
 import com.pyx.community.dto.AccessTokenDTO;
 import com.pyx.community.dto.GithubUser;
 import okhttp3.*;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpVersion;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -37,22 +47,22 @@ public class GithubProvider {
         return null;
     }
 
-    public GithubUser githubUser(String accessToken) {
+    public GithubUser githubUser(String AccessToken){
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url("https://api.github.com/user?" + accessToken)
+                .url("https://api.github.com/user?"+AccessToken)
                 .build();
-        //会自动拼接成https://api.github.com/user?accessToken=
-        try {
+        try{
             Response response = client.newCall(request).execute();
-            String string = response.body().string();
-            //用fastjson工具将String类型对象转换成GithubUser类型
-            GithubUser githubUser = JSON.parseObject(string, GithubUser.class);
-            return githubUser;
+            String res = response.body().string();
+            GithubUser gitHubUser = JSON.parseObject(res, GithubUser.class);
+            return gitHubUser;
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
+
+
 }
 
