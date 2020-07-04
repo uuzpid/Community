@@ -2,8 +2,11 @@ package com.pyx.community.service;
 
 import com.pyx.community.mapper.UserMapper;
 import com.pyx.community.model.User;
+import com.pyx.community.model.UserExample;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -15,9 +18,12 @@ public class UserService {
     public void createOrUpdate(User user) {
         /**
          * 通过AccountId查询用户表中是否有该用户
+         * mybatis generate
          */
-        User dbUser = userMapper.findByAccountId(user.getAccountId());
-        if(dbUser==null){
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andAccountIdEqualTo(user.getAccountId());
+        List<User> users = userMapper.selectByExample(userExample);
+        if(users.size()==0){
             /**插入user
              * 当user第一次插入时，需要写入用户创建时间
              */
@@ -28,11 +34,20 @@ public class UserService {
             /**更新user
              * 不需要更新用户创建时间，但是头像，名字，token都需要更新
              */
-            dbUser.setGmtModified(System.currentTimeMillis());
-            dbUser.setAvatarUrl(user.getAvatarUrl());
-            dbUser.setName(user.getName());
-            dbUser.setToken(user.getToken());
-            userMapper.update(dbUser);
+            User dbUser = users.get(0);
+            User updateUser = new User();
+            /**
+             * 需要更新的项目放入新的user对象中
+             * userMapper.updateByExample() 不使用这个因为这个是更新所有的元素
+             * 这里创建时间不需要更新，因此使用updateByExampleSelective
+             */
+            updateUser.setGmtModified(System.currentTimeMillis());
+            updateUser.setAvatarUrl(user.getAvatarUrl());
+            updateUser.setName(user.getName());
+            updateUser.setToken(user.getToken());
+            UserExample example = new UserExample();
+            example.createCriteria().andIdEqualTo(dbUser.getId());
+            userMapper.updateByExampleSelective(updateUser, example);
         }
     }
 }

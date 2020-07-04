@@ -54,7 +54,7 @@ public class QuestionService {
         List<QuestionDTO> questionDTOList = new ArrayList<>();
         for (Question question : questions) {
             //通过question对象获取到发起者的id。再通过findById查询到user的全部信息
-            User user = userMapper.findById(question.getCreator());
+            User user = userMapper.selectByPrimaryKey(question.getCreator());
             QuestionDTO questionDTO = new QuestionDTO();
             //将question对象的所有属性放到questionDTO中。
             //questionDTO.setCreator(question.getCreator()); 比较老的方法
@@ -100,7 +100,7 @@ public class QuestionService {
         List<QuestionDTO> questionDTOList = new ArrayList<>();
         for (Question question : questions) {
             //通过question对象获取到发起者的id。再通过findById查询到user的全部信息
-            User user = userMapper.findById(question.getCreator());
+            User user = userMapper.selectByPrimaryKey(question.getCreator());
             QuestionDTO questionDTO = new QuestionDTO();
             //将question对象的所有属性放到questionDTO中。
             //questionDTO.setCreator(question.getCreator()); 比较老的方法
@@ -118,7 +118,7 @@ public class QuestionService {
         Question question = questionMapper.getById(id);
         QuestionDTO questionDTO = new QuestionDTO();
         BeanUtils.copyProperties(question,questionDTO);
-        User user = userMapper.findById(question.getCreator());
+        User user = userMapper.selectByPrimaryKey(question.getCreator());
         questionDTO.setUser(user);
         return questionDTO;
     }
