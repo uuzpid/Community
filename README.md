@@ -12,6 +12,8 @@
 [Spring热部署Developer Tools](https://docs.spring.io/spring-boot/docs/2.0.0.RC1/reference/htmlsingle/#using-boot-devtools)
 [拦截器](https://docs.spring.io/spring/docs/5.0.3.RELEASE/spring-framework-reference/web.html#mvc-handlermapping-interceptor)  
 [mybatis逆向工程](http://mybatis.org/generator/)
+[pagehelper分页插件](https://github.com/pagehelper)
+[springboot](https://docs.spring.io/spring-boot/docs/2.3.1.RELEASE/reference/htmlsingle/)
 ## 工具
 
 ```mysql based

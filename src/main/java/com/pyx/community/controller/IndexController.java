@@ -28,7 +28,7 @@ public class IndexController {
 
     //需要接受两个参数 page表示页数，size表示一页多少个
     @GetMapping("/")
-    public String hello(HttpServletRequest request, Model model,
+    public String hello( Model model,
                         @RequestParam(name = "page", defaultValue = "1") Integer page,
                         @RequestParam(name = "size", defaultValue = "5") Integer size) {
 
