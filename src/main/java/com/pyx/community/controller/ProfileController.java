@@ -2,6 +2,7 @@ package com.pyx.community.controller;
 
 import com.pyx.community.dto.PaginationDTO;
 import com.pyx.community.model.User;
+import com.pyx.community.service.NotificationService;
 import com.pyx.community.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,9 @@ public class ProfileController {
 
     @Autowired
     private QuestionService questionService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @GetMapping("/profile/{action}")
     public String profile(@PathVariable(name = "action") String action,
@@ -34,12 +38,16 @@ public class ProfileController {
         if("questions".equals(action)){
             model.addAttribute("section","questions");
             model.addAttribute("sectionName","我的提问");
+            PaginationDTO paginationDTO = questionService.list(user.getId(), page, size);
+            model.addAttribute("paginationDTO",paginationDTO);
         }else if("replies".equals(action)){
             model.addAttribute("section","replies");
             model.addAttribute("sectionName","最新回复");
+            PaginationDTO paginationDTO = notificationService.list(user.getId(),page,size);
+            Long unreadCount = notificationService.unreadCount(user.getId());
+            model.addAttribute("paginationDTO",paginationDTO);
         }
-        PaginationDTO paginationDTO = questionService.list(user.getId(), page, size);
-        model.addAttribute("paginationDTO",paginationDTO);
+
         return "profile";
     }
 }

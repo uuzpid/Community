@@ -32,8 +32,7 @@ public class GithubProvider {
                         accessTokenDTO.getRedirect_uri()+"&state="+accessTokenDTO.getState())
                 .post(body)
                 .build();
-        try {
-            Response response = client.newCall(request).execute();
+        try (Response response = client.newCall(request).execute()){
             String string = response.body().string();
             //ctrl+alt+n可以快速将变量放到原文中去
             //获取到的access_token格式
@@ -47,22 +46,22 @@ public class GithubProvider {
         return null;
     }
 
-    public GithubUser githubUser(String AccessToken){
+    public GithubUser githubUser(String accessToken) {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url("https://api.github.com/user?"+AccessToken)
+                //github新版请求方式
+                .url("https://api.github.com/user?"+accessToken)
+//               .url("https://api.github.com/user?access_token=" + accessToken)
                 .build();
-        try{
+        try {
             Response response = client.newCall(request).execute();
-            String res = response.body().string();
-            GithubUser gitHubUser = JSON.parseObject(res, GithubUser.class);
-            return gitHubUser;
+            String string = response.body().string();
+            GithubUser githubUser = JSON.parseObject(string, GithubUser.class);
+            return githubUser;
         } catch (IOException e) {
-            e.printStackTrace();
         }
+
         return null;
     }
-
-
 }
 

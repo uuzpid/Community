@@ -30,11 +30,13 @@ public class IndexController {
     @GetMapping("/")
     public String hello( Model model,
                         @RequestParam(name = "page", defaultValue = "1") Integer page,
-                        @RequestParam(name = "size", defaultValue = "5") Integer size) {
+                        @RequestParam(name = "size", defaultValue = "5") Integer size,
+                        @RequestParam(name = "search",required = false) String search ) {
 
         //List<QuestionDTO> questionList = questionMapper.list();无法直接返还QuestionDTO
-        PaginationDTO paginationDTO = questionService.list(page,size);
+        PaginationDTO paginationDTO = questionService.list(search,page,size);
         model.addAttribute("paginationDTO", paginationDTO);
+        model.addAttribute("search",search);
         return "index";
     }
 

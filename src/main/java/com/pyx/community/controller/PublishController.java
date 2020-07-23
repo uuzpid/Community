@@ -1,11 +1,13 @@
 package com.pyx.community.controller;
 
 
+import com.pyx.community.cache.TagCache;
 import com.pyx.community.dto.QuestionDTO;
 import com.pyx.community.mapper.QuestionMapper;
 import com.pyx.community.model.Question;
 import com.pyx.community.model.User;
 import com.pyx.community.service.QuestionService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +17,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 public class PublishController {
@@ -26,7 +33,7 @@ public class PublishController {
      * 点击编辑后跳转到问题更新页面
      */
     @GetMapping("/publish/{id}")
-    public String edit(@PathVariable(name="id")Integer id,
+    public String edit(@PathVariable(name="id")Long id,
                        Model model){
         QuestionDTO question = questionService.getById(id);
 
@@ -38,6 +45,7 @@ public class PublishController {
         model.addAttribute("description", question.getDescription());
         model.addAttribute("tag", question.getTag());
         model.addAttribute("id",question.getId());
+        model.addAttribute("tags", TagCache.get());
         return "publish";
     }
 
@@ -45,7 +53,8 @@ public class PublishController {
      * 问题发布页面
      */
     @GetMapping("/publish")
-    public String publish() {
+    public String publish(Model model) {
+        model.addAttribute("tags", TagCache.get());
         return "publish";
     }
 
@@ -56,12 +65,13 @@ public class PublishController {
     public String doPublish(@RequestParam(value = "title",required = false) String title,
                             @RequestParam(value = "description",required = false) String description,
                             @RequestParam(value = "tag",required = false) String tag,
-                            @RequestParam(value = "id",required = false) Integer id,
+                            @RequestParam(value = "id",required = false) Long id,
                             HttpServletRequest request,
                             Model model) {
         model.addAttribute("title", title);
         model.addAttribute("description", description);
         model.addAttribute("tag", tag);
+        model.addAttribute("tags", TagCache.get());
         if (title == null || title == "") {
             model.addAttribute("error", "标题不能是空");
             return "publish";
@@ -74,10 +84,23 @@ public class PublishController {
             model.addAttribute("error", "标签不能是空");
             return "publish";
         }
+        String invalid = TagCache.filterInvalid(tag);
+        if(StringUtils.isNotBlank(invalid)){//如果有非法标签，则不为空，报出错误
+            model.addAttribute("error", "输入非法标签");
+            return "publish";
+        }
+        /**
+         * tag去重
+         */
+        String[] split = tag.split(",");
+        List<String> list = Arrays.asList(split);
+        Set<String> newTag = new HashSet<>(list);
+        String s = newTag.stream().collect(Collectors.joining(","));
+
         Question question = new Question();
         question.setTitle(title);
         question.setDescription(description);
-        question.setTag(tag);
+        question.setTag(s);
 
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) {
